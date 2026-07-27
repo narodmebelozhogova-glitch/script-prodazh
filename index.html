@@ -1,0 +1,2984 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Алгоритм продаж — Деловой стиль</title>
+    <style>
+        /* ===== ОБЩИЕ СТИЛИ С ФОНОМ ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            background-image: url('https://image.fonwall.ru/o/v1/polosi-volni-tsvet-goluboy.jpg?auto=compress&fit=crop&w=1125&h=2436&domain=img.fonwall.ru');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            color: #1a1a2e;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .top-bar {
+            background: rgba(26, 26, 46, 0.92);
+            backdrop-filter: blur(4px);
+            color: #fff;
+            padding: 10px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0;
+            border-radius: 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .top-bar .brand {
+            font-weight: 700;
+            font-size: 17px;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .top-bar .brand .editable-title {
+            outline: none;
+            padding: 2px 4px;
+            border-radius: 0;
+            transition: 0.15s;
+            cursor: text;
+        }
+
+        .top-bar .brand .editable-title:focus {
+            background: rgba(255, 215, 0, 0.2);
+            outline: 2px solid #ffd700;
+        }
+
+        .top-bar .brand .editable-title:hover:not(:focus) {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .top-bar .brand span {
+            color: #ffd700;
+        }
+
+        .top-bar .actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .top-bar .actions button {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 5px 14px;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 0;
+            transition: 0.2s;
+            font-weight: 500;
+        }
+
+        .top-bar .actions button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .top-bar .actions button.primary {
+            background: #ffd700;
+            color: #1a1a2e;
+            border-color: #ffd700;
+        }
+
+        .top-bar .actions button.primary:hover {
+            background: #e6c200;
+        }
+
+        .top-bar .actions button.danger {
+            background: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .top-bar .actions button.danger:hover {
+            background: #b02a37;
+        }
+
+        .top-bar .status {
+            font-size: 12px;
+            opacity: 0.7;
+            padding: 4px 12px;
+            border-left: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .top-bar .status.active {
+            color: #ffd700;
+            opacity: 1;
+        }
+
+        .nav-bar {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(4px);
+            padding: 8px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px 14px;
+            margin-bottom: 16px;
+            border: 1px solid #e0e0e0;
+            border-top: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            border-radius: 0;
+            position: sticky;
+            top: 52px;
+            z-index: 999;
+        }
+
+        .nav-bar a {
+            color: #1a1a2e;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 4px 8px;
+            border-bottom: 2px solid transparent;
+            transition: 0.2s;
+        }
+
+        .nav-bar a:hover {
+            border-bottom-color: #1a1a2e;
+        }
+
+        .nav-bar .separator {
+            color: #ccc;
+            user-select: none;
+        }
+
+        .nav-bar .editable-nav {
+            outline: none;
+            padding: 2px 4px;
+            border-radius: 0;
+            transition: 0.15s;
+            cursor: text;
+            color: #1a1a2e;
+        }
+
+        .nav-bar .editable-nav:focus {
+            background: #fffbe6;
+            outline: 2px solid #ffd700;
+        }
+
+        .nav-bar .editable-nav:hover:not(:focus) {
+            background: rgba(255, 215, 0, 0.08);
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.90);
+            backdrop-filter: blur(2px);
+            border: 1px solid #e0e0e0;
+            padding: 20px 24px 24px;
+            margin-bottom: 14px;
+            position: relative;
+            transition: 0.2s;
+            border-radius: 0;
+        }
+
+        .section:hover {
+            border-color: #1a1a2e;
+        }
+
+        .section.editing {
+            border-color: #ffd700;
+            border-width: 2px;
+        }
+
+        .section-title {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #1a1a2e;
+            border-bottom: 3px solid #1a1a2e;
+            padding-bottom: 6px;
+        }
+
+        .section-title .editable-text {
+            outline: none;
+            padding: 2px 4px;
+            border-radius: 0;
+            transition: 0.15s;
+            cursor: text;
+        }
+
+        .section-title .editable-text:focus {
+            background: #fffbe6;
+            outline: 2px solid #ffd700;
+        }
+
+        .section-title .editable-text:hover:not(:focus) {
+            background: rgba(255, 215, 0, 0.08);
+        }
+
+        .section-title .badge {
+            font-size: 11px;
+            background: #f0f0f0;
+            padding: 2px 12px;
+            font-weight: 500;
+            color: #666;
+            border-radius: 0;
+        }
+
+        .section-title .badge.editable {
+            background: #fff8e0;
+            border: 1px dashed #ffd700;
+        }
+
+        .section-controls {
+            display: none;
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            gap: 3px;
+            background: #1a1a2e;
+            padding: 3px 6px;
+            z-index: 10;
+        }
+
+        .editor-mode .section-controls {
+            display: flex;
+        }
+
+        .section-controls button {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border: none;
+            padding: 2px 8px;
+            font-size: 10px;
+            cursor: pointer;
+            transition: 0.15s;
+            border-radius: 0;
+        }
+
+        .section-controls button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .section-controls button.delete-block {
+            color: #ff6b6b;
+        }
+
+        .section-controls button.delete-block:hover {
+            background: rgba(220, 53, 69, 0.4);
+        }
+
+        .editable-text {
+            outline: none;
+            padding: 2px 4px;
+            transition: 0.15s;
+            cursor: text;
+            border-radius: 0;
+        }
+
+        .editable-text:focus {
+            background: #fffbe6;
+            outline: 2px solid #ffd700;
+        }
+
+        .editable-text:hover:not(:focus) {
+            background: rgba(255, 215, 0, 0.08);
+        }
+
+        .add-block-btn {
+            display: none;
+            width: 100%;
+            padding: 10px;
+            border: 2px dashed #ccc;
+            background: #fafafa;
+            color: #666;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.15s;
+            margin-top: 10px;
+            border-radius: 0;
+        }
+
+        .add-block-btn:hover {
+            background: #f0f0f0;
+            border-color: #1a1a2e;
+            color: #1a1a2e;
+        }
+
+        .editor-mode .add-block-btn {
+            display: block;
+        }
+
+        /* ===== КНОПКА ДОБАВЛЕНИЯ РАЗДЕЛА ===== */
+        .add-section-btn {
+            display: none;
+            width: 100%;
+            padding: 14px;
+            border: 2px dashed #1a1a2e;
+            background: rgba(255, 255, 255, 0.8);
+            color: #1a1a2e;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.15s;
+            margin-bottom: 14px;
+            border-radius: 0;
+        }
+
+        .add-section-btn:hover {
+            background: rgba(26, 26, 46, 0.05);
+            border-color: #ffd700;
+        }
+
+        .editor-mode .add-section-btn {
+            display: block;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+            margin-top: 6px;
+        }
+
+        .product-card {
+            background: rgba(248, 249, 250, 0.9);
+            border: 1px solid #e0e0e0;
+            padding: 14px 16px;
+            transition: 0.2s;
+            position: relative;
+            border-radius: 0;
+        }
+
+        .product-card:hover {
+            border-color: #1a1a2e;
+            background: #fff;
+        }
+
+        .product-card h4 {
+            font-size: 16px;
+            margin-bottom: 4px;
+            color: #1a1a2e;
+        }
+
+        .product-card .price {
+            font-weight: 700;
+            color: #1a1a2e;
+            font-size: 18px;
+        }
+
+        .product-card .specs {
+            font-size: 12px;
+            color: #666;
+            margin: 4px 0 8px;
+            line-height: 1.5;
+        }
+
+        .product-card .script-text {
+            font-size: 13px;
+            background: #fff;
+            padding: 8px 12px;
+            border-left: 3px solid #1a1a2e;
+            margin-top: 6px;
+            line-height: 1.6;
+        }
+
+        .objection-item {
+            border: 1px solid #e0e0e0;
+            margin-bottom: 6px;
+            overflow: hidden;
+            background: rgba(250, 250, 250, 0.9);
+            transition: 0.2s;
+            position: relative;
+            border-radius: 0;
+        }
+
+        .objection-item:hover {
+            border-color: #1a1a2e;
+        }
+
+        .objection-item .obj-header {
+            background: rgba(240, 240, 240, 0.9);
+            padding: 10px 16px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            font-size: 14px;
+            transition: 0.15s;
+        }
+
+        .objection-item .obj-header:hover {
+            background: #e8e8e8;
+        }
+
+        .objection-item .obj-header .arrow {
+            font-size: 14px;
+            transition: 0.2s;
+            color: #999;
+        }
+
+        .objection-item .obj-body {
+            padding: 0 16px 14px;
+            display: none;
+            line-height: 1.7;
+            color: #333;
+        }
+
+        .objection-item.open .obj-body {
+            display: block;
+        }
+
+        .objection-item.open .arrow {
+            transform: rotate(180deg);
+        }
+
+        .red-lines {
+            background: rgba(254, 242, 242, 0.9);
+            border: 1px solid #fcc;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            border-radius: 0;
+        }
+
+        .red-lines h4 {
+            color: #dc3545;
+            margin-bottom: 6px;
+            font-size: 15px;
+        }
+
+        .red-lines ul {
+            list-style: none;
+            padding-left: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px 16px;
+        }
+
+        .red-lines li::before {
+            content: "⛔ ";
+            color: #dc3545;
+            font-weight: 700;
+        }
+
+        .step-list {
+            counter-reset: step;
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .step-list li {
+            counter-increment: step;
+            padding: 8px 14px 8px 42px;
+            position: relative;
+            border-left: 2px solid #e0e0e0;
+            margin-bottom: 4px;
+            background: rgba(248, 249, 250, 0.9);
+            border-radius: 0;
+            font-size: 14px;
+        }
+
+        .step-list li::before {
+            content: counter(step);
+            position: absolute;
+            left: 6px;
+            top: 8px;
+            width: 24px;
+            height: 24px;
+            background: #1a1a2e;
+            color: #fff;
+            font-weight: 700;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0;
+        }
+
+        .copy-phrase {
+            background: rgba(248, 249, 250, 0.9);
+            border-left: 3px solid #1a1a2e;
+            padding: 8px 14px;
+            margin: 4px 0;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #1a1a2e;
+            position: relative;
+            transition: 0.2s;
+            border-radius: 0;
+        }
+
+        .copy-phrase:hover {
+            background: #f0f0f0;
+        }
+
+        .copy-phrase::before {
+            content: "💬 ";
+            font-size: 15px;
+        }
+
+        .copy-phrase .label {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #1a1a2e;
+            background: #e0e0e0;
+            padding: 0 10px;
+            margin-bottom: 2px;
+            border-radius: 0;
+        }
+
+        .file-manager {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(2px);
+            border: 1px solid #e0e0e0;
+            padding: 16px 20px;
+            margin-bottom: 14px;
+            border-radius: 0;
+        }
+
+        .file-manager .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .file-manager .header h3 {
+            font-size: 17px;
+            color: #1a1a2e;
+        }
+
+        .file-manager .header .actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .file-manager .header .actions button {
+            background: #1a1a2e;
+            color: #fff;
+            border: none;
+            padding: 5px 14px;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.15s;
+            border-radius: 0;
+        }
+
+        .file-manager .header .actions button:hover {
+            background: #2a2a4e;
+        }
+
+        .file-manager .header .actions button.danger {
+            background: #dc3545;
+        }
+
+        .file-manager .header .actions button.danger:hover {
+            background: #b02a37;
+        }
+
+        .search-section {
+            margin-bottom: 10px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 6px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 6px 12px;
+            border: 1px solid #e0e0e0;
+            font-size: 13px;
+            border-radius: 0;
+            outline: none;
+        }
+
+        .search-box input:focus {
+            border-color: #1a1a2e;
+        }
+
+        .search-box button {
+            padding: 6px 16px;
+            background: #1a1a2e;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 0;
+            transition: 0.15s;
+        }
+
+        .search-box button:hover {
+            background: #2a2a4e;
+        }
+
+        .search-box .clear-btn {
+            background: #dc3545;
+        }
+
+        .search-box .clear-btn:hover {
+            background: #b02a37;
+        }
+
+        .search-stats {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+            min-height: 20px;
+        }
+
+        .upload-area {
+            border: 2px dashed #e0e0e0;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.15s;
+            color: #666;
+            font-size: 13px;
+            background: rgba(248, 249, 250, 0.5);
+        }
+
+        .upload-area:hover {
+            border-color: #1a1a2e;
+            background: rgba(248, 249, 250, 0.8);
+        }
+
+        .upload-area input[type="file"] {
+            display: none;
+        }
+
+        .folder-tree {
+            margin-top: 6px;
+        }
+
+        .folder-item {
+            margin-bottom: 2px;
+        }
+
+        .folder-item .folder-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            background: rgba(248, 249, 250, 0.9);
+            border: 1px solid #e0e0e0;
+            transition: 0.15s;
+            border-radius: 0;
+        }
+
+        .folder-item .folder-label:hover {
+            background: #f0f0f0;
+        }
+
+        .folder-item .folder-label .toggle {
+            width: 18px;
+            text-align: center;
+            font-size: 11px;
+        }
+
+        .folder-item .folder-label .name {
+            flex: 1;
+        }
+
+        .folder-item .folder-label .count {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .folder-item .folder-label .actions {
+            display: flex;
+            gap: 3px;
+        }
+
+        .folder-item .folder-label .actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            padding: 0 3px;
+            opacity: 0.5;
+            transition: 0.15s;
+        }
+
+        .folder-item .folder-label .actions button:hover {
+            opacity: 1;
+        }
+
+        .folder-item .folder-children {
+            padding-left: 20px;
+            display: none;
+        }
+
+        .folder-item.open .folder-children {
+            display: block;
+        }
+
+        .folder-item .file-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 3px 6px 3px 10px;
+            font-size: 12px;
+            border-left: 2px solid #e0e0e0;
+            margin-left: 6px;
+            margin-bottom: 2px;
+        }
+
+        .folder-item .file-item:hover {
+            background: rgba(248, 249, 250, 0.9);
+        }
+
+        .folder-item .file-item .file-icon {
+            font-size: 16px;
+        }
+
+        .folder-item .file-item .file-name {
+            flex: 1;
+            color: #1a1a2e;
+            word-break: break-all;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .folder-item .file-item .file-name:hover {
+            text-decoration: underline;
+            color: #0056b3;
+        }
+
+        .folder-item .file-item .file-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .folder-item .file-item .file-actions button {
+            background: #f0f0f0;
+            border: none;
+            padding: 1px 8px;
+            font-size: 10px;
+            cursor: pointer;
+            transition: 0.15s;
+            font-weight: 500;
+            border-radius: 0;
+        }
+
+        .folder-item .file-item .file-actions button:hover {
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        .folder-item .file-item .file-actions .download-btn {
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        .folder-item .file-item .file-actions .download-btn:hover {
+            background: #2a2a4e;
+        }
+
+        .folder-item .file-item .file-actions .delete-btn {
+            background: #dc3545;
+            color: #fff;
+        }
+
+        .folder-item .file-item .file-actions .delete-btn:hover {
+            background: #b02a37;
+        }
+
+        .empty-folder {
+            color: #999;
+            font-size: 12px;
+            padding: 4px 0 4px 18px;
+            font-style: italic;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .cheat-sheet-toggle {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(26, 26, 46, 0.9);
+            backdrop-filter: blur(4px);
+            color: #fff;
+            border: 2px solid #1a1a2e;
+            border-radius: 0;
+            cursor: pointer;
+            font-size: 24px;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+
+        .cheat-sheet-toggle:hover {
+            background: #2a2a4e;
+            transform: scale(1.05);
+        }
+
+        .cheat-sheet-toggle.active {
+            background: #ffd700;
+            color: #1a1a2e;
+            border-color: #ffd700;
+        }
+
+        .cheat-sheet-panel {
+            position: fixed;
+            right: 20px;
+            bottom: 80px;
+            width: 380px;
+            max-height: 60vh;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(4px);
+            border: 2px solid #1a1a2e;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            z-index: 998;
+            display: none;
+            flex-direction: column;
+            border-radius: 0;
+            overflow: hidden;
+        }
+
+        .cheat-sheet-panel.open {
+            display: flex;
+        }
+
+        .cheat-sheet-panel .panel-header {
+            background: #1a1a2e;
+            color: #fff;
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 0;
+            flex-shrink: 0;
+        }
+
+        .cheat-sheet-panel .panel-header h4 {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .cheat-sheet-panel .panel-header .controls {
+            display: flex;
+            gap: 6px;
+        }
+
+        .cheat-sheet-panel .panel-header .controls button {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0 6px;
+            transition: 0.15s;
+        }
+
+        .cheat-sheet-panel .panel-header .controls button:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .cheat-sheet-panel .panel-search {
+            padding: 8px 12px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .cheat-sheet-panel .panel-search input {
+            flex: 1;
+            padding: 5px 10px;
+            border: 1px solid #e0e0e0;
+            font-size: 13px;
+            border-radius: 0;
+            outline: none;
+        }
+
+        .cheat-sheet-panel .panel-search input:focus {
+            border-color: #1a1a2e;
+        }
+
+        .cheat-sheet-panel .panel-search button {
+            padding: 5px 14px;
+            background: #1a1a2e;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            border-radius: 0;
+        }
+
+        .cheat-sheet-panel .panel-search button:hover {
+            background: #2a2a4e;
+        }
+
+        .cheat-sheet-panel .panel-content {
+            padding: 8px 12px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .cheat-sheet-panel .panel-content .tip-item {
+            padding: 6px 10px;
+            margin-bottom: 4px;
+            background: rgba(248, 249, 250, 0.9);
+            border-left: 3px solid #1a1a2e;
+            font-size: 13px;
+            line-height: 1.5;
+            border-radius: 0;
+            cursor: text;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .cheat-sheet-panel .panel-content .tip-item:hover {
+            background: #f0f0f0;
+        }
+
+        .cheat-sheet-panel .panel-content .tip-item .tip-text {
+            flex: 1;
+            word-break: break-word;
+        }
+
+        .cheat-sheet-panel .panel-content .tip-item .tip-actions {
+            display: none;
+            gap: 3px;
+            flex-shrink: 0;
+        }
+
+        .editor-mode .cheat-sheet-panel .panel-content .tip-item .tip-actions {
+            display: flex;
+        }
+
+        .cheat-sheet-panel .panel-content .tip-item .tip-actions button {
+            background: #f0f0f0;
+            border: none;
+            padding: 1px 8px;
+            font-size: 10px;
+            cursor: pointer;
+            border-radius: 0;
+        }
+
+        .cheat-sheet-panel .panel-content .tip-item .tip-actions button:hover {
+            background: #e0e0e0;
+        }
+
+        .cheat-sheet-panel .panel-content .tip-item .tip-actions button.delete-tip {
+            color: #dc3545;
+        }
+
+        .cheat-sheet-panel .panel-content .tip-item .tip-file {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #1a1a2e;
+            background: #e8e8e8;
+            padding: 2px 10px;
+            margin-top: 4px;
+            border-radius: 0;
+        }
+
+        .cheat-sheet-panel .panel-content .tip-item .tip-file a {
+            color: #1a1a2e;
+            text-decoration: none;
+        }
+
+        .cheat-sheet-panel .panel-content .tip-item .tip-file a:hover {
+            text-decoration: underline;
+        }
+
+        .cheat-sheet-panel .panel-content .tip-item .tip-file .remove-file {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 0 2px;
+        }
+
+        .cheat-sheet-panel .add-tip-btn {
+            width: 100%;
+            padding: 6px;
+            border: 1px dashed #ccc;
+            background: none;
+            cursor: pointer;
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+            transition: 0.15s;
+            border-radius: 0;
+        }
+
+        .cheat-sheet-panel .add-tip-btn:hover {
+            border-color: #1a1a2e;
+            color: #1a1a2e;
+        }
+
+        .cheat-sheet-panel .tip-empty {
+            color: #999;
+            text-align: center;
+            padding: 20px 0;
+            font-size: 13px;
+        }
+
+        .doc-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 10px 0;
+            border-top: 2px solid #e0e0e0;
+            margin-top: 6px;
+        }
+
+        .doc-links a {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 14px;
+            background: rgba(248, 249, 250, 0.9);
+            border: 1px solid #e0e0e0;
+            color: #1a1a2e;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 500;
+            transition: 0.2s;
+            border-radius: 0;
+        }
+
+        .doc-links a:hover {
+            background: #1a1a2e;
+            color: #fff;
+            border-color: #1a1a2e;
+        }
+
+        .doc-links .doc-label {
+            font-size: 11px;
+            opacity: 0.6;
+        }
+
+        .print-btn {
+            background: #1a1a2e;
+            color: #fff;
+            border: none;
+            padding: 10px 28px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            margin: 10px 0 20px;
+            transition: 0.2s;
+            border-radius: 0;
+        }
+
+        .print-btn:hover {
+            background: #2a2a4e;
+        }
+
+        .toast-notification {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(4px);
+            color: #fff;
+            padding: 10px 22px;
+            font-weight: 500;
+            font-size: 13px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+            max-width: 500px;
+            border-radius: 0;
+            text-align: center;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(2px);
+            z-index: 10001;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-overlay .modal-content {
+            background: #fff;
+            padding: 28px 36px;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            border-radius: 0;
+            border: 2px solid #1a1a2e;
+        }
+
+        .modal-overlay .modal-content h2 {
+            margin-bottom: 8px;
+            color: #1a1a2e;
+            font-size: 20px;
+        }
+
+        .modal-overlay .modal-content p {
+            color: #666;
+            margin-bottom: 14px;
+            font-size: 14px;
+        }
+
+        .modal-overlay .modal-content input,
+        .modal-overlay .modal-content textarea,
+        .modal-overlay .modal-content select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e0e0e0;
+            font-size: 14px;
+            margin-bottom: 12px;
+            border-radius: 0;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .modal-overlay .modal-content input:focus,
+        .modal-overlay .modal-content textarea:focus,
+        .modal-overlay .modal-content select:focus {
+            border-color: #1a1a2e;
+        }
+
+        .modal-overlay .modal-content textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+
+        .modal-overlay .modal-content .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .modal-overlay .modal-content .btn-group button {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.15s;
+            border-radius: 0;
+        }
+
+        .modal-overlay .modal-content .btn-primary {
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        .modal-overlay .modal-content .btn-primary:hover {
+            background: #2a2a4e;
+        }
+
+        .modal-overlay .modal-content .btn-secondary {
+            background: #f0f0f0;
+            color: #1a1a2e;
+        }
+
+        .modal-overlay .modal-content .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        @media print {
+            .top-bar, .nav-bar, .print-btn, .file-manager,
+            .block-controls, .add-block-btn, .add-section-btn,
+            .cheat-sheet-toggle, .cheat-sheet-panel,
+            .modal-overlay, .toast-notification {
+                display: none !important;
+            }
+
+            .section {
+                border: 1px solid #ccc !important;
+                break-inside: avoid;
+                box-shadow: none !important;
+                background: #fff !important;
+                backdrop-filter: none !important;
+            }
+
+            .objection-item .obj-body {
+                display: block !important;
+            }
+            .objection-item .arrow {
+                display: none;
+            }
+            body {
+                background: #fff !important;
+                padding: 0 !important;
+            }
+            .container {
+                max-width: 100% !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-bar {
+                flex-direction: column;
+                gap: 6px;
+                padding: 8px 12px;
+            }
+            .top-bar .actions {
+                width: 100%;
+                justify-content: center;
+            }
+            .top-bar .status {
+                border-left: none;
+                border-top: 1px solid rgba(255,255,255,0.1);
+                padding-top: 4px;
+            }
+            .nav-bar {
+                gap: 3px 8px;
+                padding: 6px 10px;
+                top: 90px;
+            }
+            .nav-bar a {
+                font-size: 11px;
+            }
+            .section {
+                padding: 14px 14px 18px;
+            }
+            .cheat-sheet-panel {
+                width: 300px;
+                right: 10px;
+                bottom: 70px;
+                max-height: 50vh;
+            }
+            .cheat-sheet-toggle {
+                width: 44px;
+                height: 44px;
+                font-size: 20px;
+                right: 10px;
+                bottom: 10px;
+            }
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+            .file-manager {
+                padding: 12px 14px;
+            }
+            .folder-item .folder-children {
+                padding-left: 12px;
+            }
+            .doc-links {
+                flex-direction: column;
+            }
+            .doc-links a {
+                justify-content: center;
+            }
+            .modal-overlay .modal-content {
+                padding: 20px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- ===== ШАПКА С РЕДАКТИРУЕМЫМ НАЗВАНИЕМ ===== -->
+    <div class="top-bar">
+        <div class="brand">
+            📋 <span class="editable-title" contenteditable="false" id="brandTitle">Алгоритм продаж</span>
+        </div>
+        <div class="actions">
+            <button class="primary" onclick="toggleEditorMode()">✏️ Редактировать</button>
+            <button onclick="saveAllChanges()">💾 Сохранить</button>
+            <button onclick="resetAllData()" class="danger">🔄 Сбросить</button>
+            <button onclick="createSticker()" style="background:#ffd700;color:#1a1a2e;border-color:#ffd700;">📌 Стикер</button>
+            <span class="status" id="statusIndicator">📖 Просмотр</span>
+        </div>
+    </div>
+
+    <!-- ===== НАВИГАЦИЯ С РЕДАКТИРУЕМЫМИ ССЫЛКАМИ ===== -->
+    <div class="nav-bar" id="mainNav">
+        <span class="editable-nav" contenteditable="false" data-nav="0">📞 Контакт</span>
+        <span class="separator">|</span>
+        <span class="editable-nav" contenteditable="false" data-nav="1">🔍 Потребности</span>
+        <span class="separator">|</span>
+        <span class="editable-nav" contenteditable="false" data-nav="2">🛋️ Товары</span>
+        <span class="separator">|</span>
+        <span class="editable-nav" contenteditable="false" data-nav="3">⚡ Возражения</span>
+        <span class="separator">|</span>
+        <span class="editable-nav" contenteditable="false" data-nav="4">✅ Оформление</span>
+        <span class="separator">|</span>
+        <span class="editable-nav" contenteditable="false" data-nav="5">🔄 Реанимация</span>
+        <span class="separator">|</span>
+        <a href="#file-manager">📁 Материалы</a>
+    </div>
+
+    <!-- ===== ФАЙЛОВЫЙ МЕНЕДЖЕР ===== -->
+    <div class="file-manager" id="file-manager">
+        <div class="header">
+            <h3>📁 Материалы</h3>
+            <div class="actions">
+                <button onclick="createFolder()">➕ Папка</button>
+                <button onclick="document.getElementById('file-input').click()">📎 Загрузить</button>
+                <button class="danger" onclick="clearAllFiles()">🗑️ Очистить</button>
+            </div>
+        </div>
+
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" id="fileSearchInput" placeholder="🔍 Поиск файлов по названию..." oninput="searchFiles()">
+                <button onclick="searchFiles()">Найти</button>
+                <button onclick="clearFileSearch()" class="clear-btn">✕</button>
+            </div>
+            <div class="search-stats" id="searchStats"></div>
+        </div>
+
+        <div class="upload-area" onclick="document.getElementById('file-input').click()">
+            <span>📎 Перетащите файлы сюда или нажмите для загрузки</span>
+            <input type="file" id="file-input" multiple accept="image/*, .pdf, .doc, .docx, .xls, .xlsx" onchange="uploadFiles(event)">
+        </div>
+
+        <div class="folder-tree" id="folderTree">
+            <p style="color:#999; padding:20px 0; text-align:center;">📭 Нет папок. Нажмите «Папка».</p>
+        </div>
+
+        <div class="doc-links" id="docLinks">
+            <a href="#" onclick="openCatalog()">
+                📄 <span class="doc-label">Каталог мебели</span> 📎 PDF
+            </a>
+            <a href="#" onclick="openDoc('schedule')">
+                📄 <span class="doc-label">Сроки поступления</span> 📎 DOCX
+            </a>
+            <a href="#" onclick="addDocLink()">
+                ➕ Добавить ссылку
+            </a>
+        </div>
+    </div>
+
+    <!-- ===== КОНТЕЙНЕР ДЛЯ РАЗДЕЛОВ ===== -->
+    <div id="sectionsContainer">
+
+        <!-- ========================================================= -->
+        <!--  1. КОНТАКТ                                                -->
+        <!-- ========================================================= -->
+        <section class="section" id="section-contact" data-section-index="0">
+            <div class="section-controls">
+                <button onclick="duplicateSection('section-contact')">📋 Копировать</button>
+                <button class="delete-block" onclick="deleteSection('section-contact')">🗑️ Удалить</button>
+            </div>
+            <div class="section-title">
+                <span class="editable-text" contenteditable="false">1. Контакт</span>
+                <span class="badge editable-text" contenteditable="false">Первое касание</span>
+            </div>
+
+            <div class="red-lines">
+                <h4 class="editable-text" contenteditable="false">⛔ Запрещено</h4>
+                <ul>
+                    <li class="editable-text" contenteditable="false">Сокращения: «пжст», «доброго», «нзч»</li>
+                    <li class="editable-text" contenteditable="false">Аббревиатуры без расшифровки</li>
+                </ul>
+            </div>
+
+            <div style="background:rgba(248,249,250,0.9); padding:14px 18px; border-left:3px solid #1a1a2e; margin-bottom:12px;">
+                <p style="font-weight:600; margin-bottom:4px;" class="editable-text" contenteditable="false">📌 Основной скрипт:</p>
+                <div class="copy-phrase editable-text" contenteditable="false">
+                    <span class="label">📋 СКОПИРОВАТЬ</span><br>
+                    «Здравствуйте! Меня зовут Оксана, персональный менеджер. Компания "Народная мебель" — 9 лет, крупный склад, доставка 1-3 дня. Какую продукцию рассматриваете?»
+                </div>
+            </div>
+
+            <button class="add-block-btn" onclick="addBlock('section-contact')">+ Добавить блок</button>
+        </section>
+
+        <!-- ========================================================= -->
+        <!--  2. ПОТРЕБНОСТИ                                            -->
+        <!-- ========================================================= -->
+        <section class="section" id="section-needs" data-section-index="1">
+            <div class="section-controls">
+                <button onclick="duplicateSection('section-needs')">📋 Копировать</button>
+                <button class="delete-block" onclick="deleteSection('section-needs')">🗑️ Удалить</button>
+            </div>
+            <div class="section-title">
+                <span class="editable-text" contenteditable="false">2. Выявление потребностей</span>
+                <span class="badge editable-text" contenteditable="false">Вопросы</span>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
+                <div style="background:rgba(248,249,250,0.9); padding:12px 16px; border:1px solid #e0e0e0;">
+                    <p style="font-weight:600; margin-bottom:4px;" class="editable-text" contenteditable="false">🏠 Базовые вопросы</p>
+                    <ul style="list-style:none; padding-left:0; line-height:1.8;">
+                        <li class="editable-text" contenteditable="false">• Для какой комнаты?</li>
+                        <li class="editable-text" contenteditable="false">• Ограничения по ширине?</li>
+                        <li class="editable-text" contenteditable="false">• Для чего будет использоваться?</li>
+                    </ul>
+                </div>
+                <div style="background:rgba(248,249,250,0.9); padding:12px 16px; border:1px solid #e0e0e0;">
+                    <p style="font-weight:600; margin-bottom:4px;" class="editable-text" contenteditable="false">➕ Дополнительные</p>
+                    <ul style="list-style:none; padding-left:0; line-height:1.8;">
+                        <li class="editable-text" contenteditable="false">• Когда планируете покупку?</li>
+                        <li class="editable-text" contenteditable="false">• Ищете определенную модель?</li>
+                    </ul>
+                    <div class="copy-phrase editable-text" contenteditable="false" style="margin-top:4px;">
+                        <span class="label">📋 СКОПИРОВАТЬ</span><br>
+                        🎨 «Уточните, вы имеете в виду цвет венге или графит?»
+                    </div>
+                </div>
+            </div>
+            <button class="add-block-btn" onclick="addBlock('section-needs')">+ Добавить блок</button>
+        </section>
+
+        <!-- ========================================================= -->
+        <!--  3. ТОВАРЫ                                                 -->
+        <!-- ========================================================= -->
+        <section class="section" id="section-products" data-section-index="2">
+            <div class="section-controls">
+                <button onclick="duplicateSection('section-products')">📋 Копировать</button>
+                <button class="delete-block" onclick="deleteSection('section-products')">🗑️ Удалить</button>
+            </div>
+            <div class="section-title">
+                <span class="editable-text" contenteditable="false">3. Презентация товаров</span>
+                <span class="badge editable-text" contenteditable="false">Карточки</span>
+            </div>
+
+            <div class="product-grid" id="productGrid">
+                <div class="product-card">
+                    <h4 class="editable-text" contenteditable="false">Комод "Тоскана"</h4>
+                    <div class="specs editable-text" contenteditable="false">1352×935×446 мм • ЛДСП</div>
+                    <div class="price editable-text" contenteditable="false">21 000 ₽</div>
+                    <div class="script-text editable-text" contenteditable="false">
+                        «Какой из этих вариантов Вам больше подходит?»
+                    </div>
+                </div>
+                <div class="product-card">
+                    <h4 class="editable-text" contenteditable="false">Шкаф "Элегант"</h4>
+                    <div class="specs editable-text" contenteditable="false">1800×2200×600 мм • ЛДСП</div>
+                    <div class="price editable-text" contenteditable="false">18 500 ₽</div>
+                    <div class="script-text editable-text" contenteditable="false">
+                        «Обратите внимание на вместительность и зеркальные фасады.»
+                    </div>
+                </div>
+                <div class="product-card">
+                    <h4 class="editable-text" contenteditable="false">Диван "Монако"</h4>
+                    <div class="specs editable-text" contenteditable="false">2100×950×850 мм • Велюр</div>
+                    <div class="price editable-text" contenteditable="false">34 900 ₽</div>
+                    <div class="script-text editable-text" contenteditable="false">
+                        «Какой цвет на фото Вам ближе: песочный или графитовый?»
+                    </div>
+                </div>
+            </div>
+            <button class="add-block-btn" onclick="addProductCard()">+ Добавить товар</button>
+            <button class="add-block-btn" onclick="addBlock('section-products')">+ Добавить текстовый блок</button>
+        </section>
+
+        <!-- ========================================================= -->
+        <!--  4. ВОЗРАЖЕНИЯ                                             -->
+        <!-- ========================================================= -->
+        <section class="section" id="section-objections" data-section-index="3">
+            <div class="section-controls">
+                <button onclick="duplicateSection('section-objections')">📋 Копировать</button>
+                <button class="delete-block" onclick="deleteSection('section-objections')">🗑️ Удалить</button>
+            </div>
+            <div class="section-title">
+                <span class="editable-text" contenteditable="false">4. Работа с возражениями</span>
+                <span class="badge editable-text" contenteditable="false">Кликните для раскрытия</span>
+            </div>
+
+            <div id="objectionsContainer">
+                <div class="objection-item open">
+                    <div class="obj-header" onclick="toggleObj(this)">
+                        <span class="editable-text" contenteditable="false">💰 ДОРОГО</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="obj-body editable-text" contenteditable="false">
+                        <div class="copy-phrase">
+                            <span class="label">📋 СКОПИРОВАТЬ</span><br>
+                            «С чем сравниваете? У нас гарантия лучшей цены.»
+                        </div>
+                    </div>
+                </div>
+                <div class="objection-item">
+                    <div class="obj-header" onclick="toggleObj(this)">
+                        <span class="editable-text" contenteditable="false">🤔 ПОДУМАЮ</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="obj-body editable-text" contenteditable="false">
+                        <div class="copy-phrase">
+                            <span class="label">📋 СКОПИРОВАТЬ</span><br>
+                            «Над чем хотите подумать? Есть сомнения? Могу помочь с выбором.»
+                        </div>
+                    </div>
+                </div>
+                <div class="objection-item">
+                    <div class="obj-header" onclick="toggleObj(this)">
+                        <span class="editable-text" contenteditable="false">👥 ПОСОВЕТУЮСЬ</span>
+                        <span class="arrow">▼</span>
+                    </div>
+                    <div class="obj-body editable-text" contenteditable="false">
+                        <div class="copy-phrase">
+                            <span class="label">📋 СКОПИРОВАТЬ</span><br>
+                            «Конечно, советоваться с близкими при выборе мебели. Завтра в 12:00 напишу и спрошу о решении?»
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="add-block-btn" onclick="addObjection()">+ Добавить возражение</button>
+        </section>
+
+        <!-- ========================================================= -->
+        <!--  5. ОФОРМЛЕНИЕ                                             -->
+        <!-- ========================================================= -->
+        <section class="section" id="section-closing" data-section-index="4">
+            <div class="section-controls">
+                <button onclick="duplicateSection('section-closing')">📋 Копировать</button>
+                <button class="delete-block" onclick="deleteSection('section-closing')">🗑️ Удалить</button>
+            </div>
+            <div class="section-title">
+                <span class="editable-text" contenteditable="false">5. Оформление и закрытие</span>
+                <span class="badge editable-text" contenteditable="false">Договор</span>
+            </div>
+
+            <div style="background:rgba(248,249,250,0.9); padding:14px 18px; border-left:3px solid #1a1a2e; margin-bottom:14px;">
+                <p style="font-weight:600;" class="editable-text" contenteditable="false">КЛЮЧЕВОЙ ПЕРЕХОД:</p>
+                <div class="copy-phrase editable-text" contenteditable="false">
+                    <span class="label">📋 СКОПИРОВАТЬ</span><br>
+                    «Отлично, договорились. Тогда давайте сразу оформим, чтобы забронировать товар.»
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
+                <div style="background:rgba(248,249,250,0.9); border:1px solid #e0e0e0; padding:14px 16px;">
+                    <h4 style="color:#1a1a2e;" class="editable-text" contenteditable="false">📦 Доставка</h4>
+                    <div class="copy-phrase editable-text" contenteditable="false">
+                        <span class="label">📋 СКОПИРОВАТЬ</span><br>
+                        «Для оформления договора мне нужно ваше ФИО, телефон и адрес.»
+                    </div>
+                </div>
+                <div style="background:rgba(248,249,250,0.9); border:1px solid #e0e0e0; padding:14px 16px;">
+                    <h4 style="color:#1a1a2e;" class="editable-text" contenteditable="false">🏪 Самовывоз</h4>
+                    <div class="copy-phrase editable-text" contenteditable="false">
+                        <span class="label">📋 СКОПИРОВАТЬ</span><br>
+                        «Для оформления договора мне нужно ваше ФИО и телефон. Предоплата 1000 ₽.»
+                    </div>
+                </div>
+            </div>
+            <button class="add-block-btn" onclick="addBlock('section-closing')">+ Добавить блок</button>
+        </section>
+
+        <!-- ========================================================= -->
+        <!--  6. РЕАНИМАЦИЯ                                             -->
+        <!-- ========================================================= -->
+        <section class="section" id="section-reanimation" data-section-index="5">
+            <div class="section-controls">
+                <button onclick="duplicateSection('section-reanimation')">📋 Копировать</button>
+                <button class="delete-block" onclick="deleteSection('section-reanimation')">🗑️ Удалить</button>
+            </div>
+            <div class="section-title">
+                <span class="editable-text" contenteditable="false">6. Реанимация диалога</span>
+                <span class="badge editable-text" contenteditable="false">3 касания</span>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
+                <div style="background:rgba(248,249,250,0.9); border:1px solid #e0e0e0; padding:14px 16px;">
+                    <h4 style="color:#1a1a2e;" class="editable-text" contenteditable="false">📌 Развилка 1</h4>
+                    <ul class="step-list">
+                        <li class="editable-text" contenteditable="false">«Здравствуйте, покупка для Вас актуальна?»</li>
+                        <li class="editable-text" contenteditable="false">«До конца недели скидка 5%. Интересно?»</li>
+                    </ul>
+                </div>
+                <div style="background:rgba(248,249,250,0.9); border:1px solid #e0e0e0; padding:14px 16px;">
+                    <h4 style="color:#1a1a2e;" class="editable-text" contenteditable="false">📌 Развилка 2</h4>
+                    <ul class="step-list">
+                        <li class="editable-text" contenteditable="false">«Что-то понравилось? Есть вопросы?»</li>
+                        <li class="editable-text" contenteditable="false">«Если молчит → фиксируем 3-й игнор.»</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div style="margin-top:14px; background:#1a1a2e; color:#fff; padding:14px 18px;">
+                <p style="font-weight:600;" class="editable-text" contenteditable="false">✅ ФИНАЛ: 3 отказа</p>
+                <div class="copy-phrase editable-text" contenteditable="false" style="border-left-color:#ffd700; background:rgba(255,255,255,0.05); color:#fff;">
+                    <span class="label" style="background:#ffd700;color:#1a1a2e;">📋 СКОПИРОВАТЬ</span><br>
+                    «Предложение действует до конца недели. Если решите — пишите! Хорошего дня!»
+                </div>
+            </div>
+            <button class="add-block-btn" onclick="addBlock('section-reanimation')">+ Добавить блок</button>
+        </section>
+
+    </div>
+
+    <!-- ===== КНОПКА ДОБАВЛЕНИЯ РАЗДЕЛА ===== -->
+    <button class="add-section-btn" onclick="addNewSection()">➕ Добавить новый раздел</button>
+
+    <!-- ===== КНОПКА ПЕЧАТИ ===== -->
+    <button class="print-btn" onclick="window.print()">🖨️ Распечатать</button>
+
+</div>
+
+<!-- ===== КНОПКА-ЛУПА ДЛЯ ШПАРГАЛОК ===== -->
+<button class="cheat-sheet-toggle" id="cheatToggle" onclick="toggleCheatSheet()">
+    🔍
+</button>
+
+<!-- ===== ПАНЕЛЬ ШПАРГАЛОК ===== -->
+<div class="cheat-sheet-panel" id="cheatSheet">
+    <div class="panel-header">
+        <h4>📚 Шпаргалки</h4>
+        <div class="controls">
+            <button onclick="toggleCheatSheet()">✕</button>
+        </div>
+    </div>
+    <div class="panel-search">
+        <input type="text" id="cheatSearch" placeholder="🔍 Поиск по шпаргалкам..." oninput="searchCheatSheets()">
+        <button onclick="searchCheatSheets()">Найти</button>
+    </div>
+    <div class="panel-content" id="cheatContent"></div>
+</div>
+
+<!-- ===== МОДАЛЬНОЕ ОКНО ===== -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content">
+        <h2 id="modalTitle">🔒 Доступ</h2>
+        <p id="modalText">Введите значение</p>
+        <div id="modalBody">
+            <input type="text" id="modalInput" placeholder="Введите значение...">
+        </div>
+        <div class="btn-group">
+            <button class="btn-primary" onclick="modalConfirm()">Подтвердить</button>
+            <button class="btn-secondary" onclick="modalClose()">Отмена</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const ADMIN_PASSWORD = 'Qsweet2002';
+    let isEditorMode = false;
+    let modalCallback = null;
+    let cheatOpen = false;
+    let pendingFiles = [];
+    let pendingFileInput = null;
+
+    // ============================
+    // РЕЖИМ РЕДАКТИРОВАНИЯ
+    // ============================
+    function toggleEditorMode() {
+        if (isEditorMode) {
+            disableEditorMode();
+        } else {
+            showModal('🔒 Доступ к редактированию', 'Введите пароль для включения режима редактирования', function(password) {
+                if (password === ADMIN_PASSWORD) {
+                    enableEditorMode();
+                    modalClose();
+                } else {
+                    alert('❌ Неверный пароль!');
+                    const input = document.getElementById('modalInput');
+                    if (input) {
+                        input.value = '';
+                        input.focus();
+                    }
+                }
+            }, '', 'password');
+        }
+    }
+
+    function enableEditorMode() {
+        isEditorMode = true;
+        document.body.classList.add('editor-mode');
+        document.getElementById('statusIndicator').textContent = '✏️ Редактирование';
+        document.getElementById('statusIndicator').classList.add('active');
+        
+        // Редактируемые элементы
+        document.querySelectorAll('.editable-text, .editable-nav, .editable-title').forEach(el => {
+            el.contentEditable = 'true';
+        });
+        
+        document.querySelectorAll('.section').forEach(el => el.classList.add('editing'));
+        showToast('✅ Режим редактирования включен');
+        renderCheatSheets();
+    }
+
+    function disableEditorMode() {
+        isEditorMode = false;
+        document.body.classList.remove('editor-mode');
+        document.getElementById('statusIndicator').textContent = '📖 Просмотр';
+        document.getElementById('statusIndicator').classList.remove('active');
+        
+        document.querySelectorAll('.editable-text, .editable-nav, .editable-title').forEach(el => {
+            el.contentEditable = 'false';
+        });
+        
+        document.querySelectorAll('.section').forEach(el => el.classList.remove('editing'));
+        saveAllChanges();
+        showToast('📖 Режим просмотра');
+        renderCheatSheets();
+    }
+
+    // ============================
+    // МОДАЛЬНОЕ ОКНО
+    // ============================
+    function showModal(title, text, callback, extraHtml = '', inputType = 'text') {
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalText').textContent = text;
+        
+        if (extraHtml) {
+            document.getElementById('modalBody').innerHTML = extraHtml;
+        } else {
+            document.getElementById('modalBody').innerHTML = `<input type="${inputType}" id="modalInput" placeholder="Введите значение...">`;
+        }
+        
+        document.getElementById('modalOverlay').classList.add('active');
+        modalCallback = callback;
+        setTimeout(() => {
+            const input = document.getElementById('modalInput');
+            if (input) input.focus();
+        }, 100);
+    }
+
+    function modalConfirm() {
+        const input = document.getElementById('modalInput');
+        if (modalCallback) {
+            modalCallback(input ? input.value : '');
+        }
+    }
+
+    function modalClose() {
+        document.getElementById('modalOverlay').classList.remove('active');
+        modalCallback = null;
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && document.getElementById('modalOverlay').classList.contains('active')) {
+            modalConfirm();
+        }
+    });
+
+    document.getElementById('modalOverlay').addEventListener('click', function(e) {
+        if (e.target === this) modalClose();
+    });
+
+    // ============================
+    // СОХРАНЕНИЕ И ЗАГРУЗКА
+    // ============================
+    function getElementPath(el) {
+        let path = [];
+        while (el && el !== document.body) {
+            let id = el.id ? '#' + el.id : '';
+            let classes = el.className ? '.' + el.className.replace(/ /g, '.') : '';
+            let tag = el.tagName.toLowerCase();
+            let index = 0;
+            if (el.parentNode) {
+                const siblings = Array.from(el.parentNode.children).filter(e => e.tagName === el.tagName);
+                index = siblings.indexOf(el);
+            }
+            path.unshift(tag + id + classes + (index > 0 ? `[${index}]` : ''));
+            el = el.parentNode;
+        }
+        return path.join(' > ');
+    }
+
+    function getCurrentData() {
+        const data = {
+            content: {},
+            folders: {},
+            cheatSheets: [],
+            brandTitle: document.getElementById('brandTitle')?.innerHTML || 'Алгоритм продаж',
+            navItems: []
+        };
+        
+        document.querySelectorAll('.editable-text').forEach(el => {
+            const path = getElementPath(el);
+            data.content[path] = el.innerHTML;
+        });
+        
+        document.querySelectorAll('.editable-nav').forEach(el => {
+            data.navItems.push({
+                index: el.dataset.nav,
+                text: el.innerHTML
+            });
+        });
+        
+        data.folders = getFolders();
+        data.cheatSheets = getCheatSheets();
+        data.links = getDocLinks();
+        
+        return data;
+    }
+
+    function saveAllChanges() {
+        const data = getCurrentData();
+        localStorage.setItem('editor_content', JSON.stringify(data.content));
+        localStorage.setItem('sales_folders', JSON.stringify(data.folders));
+        localStorage.setItem('cheat_sheets', JSON.stringify(data.cheatSheets));
+        localStorage.setItem('sales_links', JSON.stringify(data.links));
+        localStorage.setItem('brand_title', data.brandTitle);
+        localStorage.setItem('nav_items', JSON.stringify(data.navItems));
+        showToast('✅ Все изменения сохранены');
+    }
+
+    function loadSavedContent() {
+        // Загружаем контент
+        const saved = localStorage.getItem('editor_content');
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                document.querySelectorAll('.editable-text').forEach(el => {
+                    const path = getElementPath(el);
+                    if (data[path]) {
+                        el.innerHTML = data[path];
+                    }
+                });
+            } catch(e) {}
+        }
+        
+        // Загружаем название бренда
+        const brandTitle = localStorage.getItem('brand_title');
+        if (brandTitle) {
+            const titleEl = document.getElementById('brandTitle');
+            if (titleEl) titleEl.innerHTML = brandTitle;
+        }
+        
+        // Загружаем навигацию
+        const navData = localStorage.getItem('nav_items');
+        if (navData) {
+            try {
+                const navItems = JSON.parse(navData);
+                document.querySelectorAll('.editable-nav').forEach(el => {
+                    const idx = el.dataset.nav;
+                    const found = navItems.find(item => String(item.index) === String(idx));
+                    if (found) {
+                        el.innerHTML = found.text;
+                    }
+                });
+            } catch(e) {}
+        }
+        
+        // Загружаем шпаргалки
+        const cheatData = localStorage.getItem('cheat_sheets');
+        if (cheatData) {
+            try {
+                const sheets = JSON.parse(cheatData);
+                if (sheets.length > 0) {
+                    localStorage.setItem('cheat_sheets', JSON.stringify(sheets));
+                }
+            } catch(e) {}
+        }
+        renderCheatSheets();
+        
+        // Загружаем ссылки
+        const links = localStorage.getItem('sales_links');
+        if (links) {
+            try {
+                const linksData = JSON.parse(links);
+                loadDocLinks(linksData);
+            } catch(e) {}
+        }
+        
+        // Загружаем папки
+        const folders = localStorage.getItem('sales_folders');
+        if (folders) {
+            try {
+                const foldersData = JSON.parse(folders);
+                loadFolders(foldersData);
+            } catch(e) {}
+        }
+    }
+
+    function resetAllData() {
+        if (!confirm('⚠️ Сбросить все изменения?')) return;
+        localStorage.clear();
+        location.reload();
+    }
+
+    // ============================
+    // УПРАВЛЕНИЕ РАЗДЕЛАМИ
+    // ============================
+    let sectionCounter = document.querySelectorAll('.section').length;
+
+    function addNewSection() {
+        const container = document.getElementById('sectionsContainer');
+        const sectionCount = container.querySelectorAll('.section').length + 1;
+        
+        const newSection = document.createElement('section');
+        const sectionId = 'section-new-' + Date.now();
+        newSection.className = 'section';
+        newSection.id = sectionId;
+        newSection.dataset.sectionIndex = sectionCount - 1;
+        
+        newSection.innerHTML = `
+            <div class="section-controls">
+                <button onclick="duplicateSection('${sectionId}')">📋 Копировать</button>
+                <button class="delete-block" onclick="deleteSection('${sectionId}')">🗑️ Удалить</button>
+            </div>
+            <div class="section-title">
+                <span class="editable-text" contenteditable="${isEditorMode}">${sectionCount}. Новый раздел</span>
+                <span class="badge editable-text" contenteditable="${isEditorMode}">Описание</span>
+            </div>
+            <div style="background:rgba(248,249,250,0.9); padding:14px 18px; border-left:3px solid #1a1a2e; margin-bottom:12px;">
+                <p style="font-weight:600; margin-bottom:4px;" class="editable-text" contenteditable="${isEditorMode}">📌 Содержание раздела:</p>
+                <div class="editable-text" contenteditable="${isEditorMode}" style="padding:8px 12px; background:#fff; border:1px solid #e0e0e0;">
+                    Напишите здесь содержание нового раздела.
+                </div>
+            </div>
+            <button class="add-block-btn" onclick="addBlock('${sectionId}')">+ Добавить блок</button>
+        `;
+        
+        container.appendChild(newSection);
+        
+        if (isEditorMode) {
+            newSection.classList.add('editing');
+            const title = newSection.querySelector('.editable-text');
+            if (title) {
+                setTimeout(() => {
+                    title.focus();
+                    const range = document.createRange();
+                    range.selectNodeContents(title);
+                    const sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }, 100);
+            }
+        }
+        
+        showToast('✅ Новый раздел добавлен');
+    }
+
+    function deleteSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        if (!section) return;
+        
+        // Не даем удалить последний раздел
+        const container = document.getElementById('sectionsContainer');
+        if (container.querySelectorAll('.section').length <= 1) {
+            showToast('❌ Нельзя удалить последний раздел');
+            return;
+        }
+        
+        if (!confirm('🗑️ Удалить раздел "' + (section.querySelector('.section-title .editable-text')?.innerHTML || '') + '"?')) return;
+        section.remove();
+        showToast('🗑️ Раздел удалён');
+        updateSectionNumbers();
+    }
+
+    function duplicateSection(sectionId) {
+        const original = document.getElementById(sectionId);
+        if (!original) return;
+
+        const clone = original.cloneNode(true);
+        const newId = sectionId + '-copy-' + Date.now();
+        clone.id = newId;
+        
+        // Обновляем обработчики кнопок
+        const controls = clone.querySelector('.section-controls');
+        if (controls) {
+            const btns = controls.querySelectorAll('button');
+            btns.forEach(btn => {
+                const onclick = btn.getAttribute('onclick');
+                if (onclick) {
+                    const newOnclick = onclick.replace(/['"]/g, '').replace(/\([^)]*\)/, `('${newId}')`);
+                    btn.setAttribute('onclick', newOnclick);
+                }
+            });
+        }
+        
+        // Обновляем кнопку добавления блока
+        const addBtn = clone.querySelector('.add-block-btn');
+        if (addBtn) {
+            const onclick = addBtn.getAttribute('onclick');
+            if (onclick) {
+                addBtn.setAttribute('onclick', `addBlock('${newId}')`);
+            }
+        }
+        
+        original.parentNode.insertBefore(clone, original.nextSibling);
+        updateSectionNumbers();
+        showToast('📋 Раздел скопирован');
+    }
+
+    function updateSectionNumbers() {
+        const sections = document.querySelectorAll('#sectionsContainer .section');
+        sections.forEach((section, index) => {
+            const title = section.querySelector('.section-title .editable-text');
+            if (title) {
+                const currentText = title.innerHTML;
+                // Обновляем номер только если он есть в начале
+                const numberMatch = currentText.match(/^(\d+)\./);
+                if (numberMatch) {
+                    const newText = currentText.replace(/^\d+\./, (index + 1) + '.');
+                    title.innerHTML = newText;
+                }
+            }
+            section.dataset.sectionIndex = index;
+        });
+    }
+
+    // ============================
+    // УПРАВЛЕНИЕ БЛОКАМИ
+    // ============================
+    function addBlock(sectionId) {
+        const section = document.getElementById(sectionId);
+        if (!section) return;
+
+        const newBlock = document.createElement('div');
+        newBlock.style.cssText = 'background:rgba(248,249,250,0.9); padding:10px 14px; border:1px solid #e0e0e0; margin-top:8px;';
+        newBlock.className = 'editable-text';
+        newBlock.contentEditable = isEditorMode ? 'true' : 'false';
+        newBlock.innerHTML = '✏️ Новый блок. Напишите здесь свой текст.';
+
+        const addBtn = section.querySelector('.add-block-btn');
+        if (addBtn) {
+            section.insertBefore(newBlock, addBtn);
+        } else {
+            section.appendChild(newBlock);
+        }
+
+        if (isEditorMode) {
+            newBlock.focus();
+            const range = document.createRange();
+            range.selectNodeContents(newBlock);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+        }
+        showToast('✅ Блок добавлен');
+    }
+
+    function addProductCard() {
+        const grid = document.getElementById('productGrid');
+        if (!grid) return;
+
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+            <h4 class="editable-text" contenteditable="${isEditorMode}">✏️ Новый товар</h4>
+            <div class="specs editable-text" contenteditable="${isEditorMode}">Характеристики</div>
+            <div class="price editable-text" contenteditable="${isEditorMode}">0 ₽</div>
+            <div class="script-text editable-text" contenteditable="${isEditorMode}">Скрипт для товара</div>
+        `;
+        grid.appendChild(card);
+        showToast('✅ Товар добавлен');
+    }
+
+    function addObjection() {
+        const container = document.getElementById('objectionsContainer');
+        if (!container) return;
+
+        const item = document.createElement('div');
+        item.className = 'objection-item';
+        item.innerHTML = `
+            <div class="obj-header" onclick="toggleObj(this)">
+                <span class="editable-text" contenteditable="${isEditorMode}">✏️ НОВОЕ ВОЗРАЖЕНИЕ</span>
+                <span class="arrow">▼</span>
+            </div>
+            <div class="obj-body editable-text" contenteditable="${isEditorMode}">Напишите ответ на возражение.</div>
+        `;
+        container.appendChild(item);
+        showToast('✅ Возражение добавлено');
+    }
+
+    function toggleObj(headerEl) {
+        const item = headerEl.closest('.objection-item');
+        if (item) item.classList.toggle('open');
+    }
+
+    // ============================
+    // ФАЙЛОВЫЙ МЕНЕДЖЕР
+    // ============================
+    function getFolders() {
+        const data = localStorage.getItem('sales_folders');
+        if (data) {
+            try { return JSON.parse(data); } catch(e) { return {}; }
+        }
+        return {};
+    }
+
+    function saveFolders(folders) {
+        localStorage.setItem('sales_folders', JSON.stringify(folders));
+        loadFolders(folders);
+    }
+
+    function loadFolders(folders) {
+        const container = document.getElementById('folderTree');
+        const data = folders || getFolders();
+        container.innerHTML = '';
+
+        if (Object.keys(data).length === 0) {
+            container.innerHTML = '<p style="color:#999; padding:20px 0; text-align:center;">📭 Нет папок. Нажмите «Папка».</p>';
+            return;
+        }
+
+        const sortedKeys = Object.keys(data).sort((a, b) => {
+            const aIsSub = a.includes('/');
+            const bIsSub = b.includes('/');
+            if (aIsSub && !bIsSub) return 1;
+            if (!aIsSub && bIsSub) return -1;
+            return a.localeCompare(b);
+        });
+
+        for (const folderName of sortedKeys) {
+            const files = data[folderName] || [];
+            const isSubfolder = folderName.includes('/');
+            const parentName = isSubfolder ? folderName.split('/')[0] : null;
+            
+            if (isSubfolder) {
+                const parentExists = container.querySelector(`[data-folder="${parentName}"]`);
+                if (!parentExists) {
+                    const parentFiles = data[parentName] || [];
+                    const parentItem = createFolderElement(parentName, parentFiles);
+                    container.appendChild(parentItem);
+                }
+            }
+            
+            const existingItem = container.querySelector(`[data-folder="${folderName}"]`);
+            if (!existingItem) {
+                const item = createFolderElement(folderName, files);
+                if (isSubfolder) {
+                    const parentEl = container.querySelector(`[data-folder="${parentName}"]`);
+                    if (parentEl) {
+                        const childrenContainer = parentEl.querySelector('.folder-children');
+                        if (childrenContainer) {
+                            childrenContainer.appendChild(item);
+                            parentEl.classList.add('open');
+                            const toggle = parentEl.querySelector('.toggle');
+                            if (toggle) toggle.textContent = '▼';
+                        }
+                    }
+                } else {
+                    container.appendChild(item);
+                }
+            }
+        }
+    }
+
+    function createFolderElement(folderName, files) {
+        const item = document.createElement('div');
+        item.className = 'folder-item';
+        item.dataset.folder = folderName;
+        
+        let filesHtml = '';
+        if (!files || files.length === 0) {
+            filesHtml = '<div class="empty-folder">Папка пуста</div>';
+        } else {
+            filesHtml = files.map((file, index) => {
+                const icon = file.icon || (file.type && file.type.startsWith('image/') ? '🖼️' : '📄');
+                return `
+                    <div class="file-item" data-index="${index}">
+                        <span class="file-icon">${icon}</span>
+                        <span class="file-name" onclick="openFile('${folderName}', ${index})" title="Нажмите для просмотра/скачивания">${file.name}</span>
+                        <div class="file-actions">
+                            <button class="download-btn" onclick="downloadFile('${folderName}', ${index})">⬇️ Скачать</button>
+                            <button class="delete-btn" onclick="deleteFile('${folderName}', ${index})">✕</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        const isSubfolder = folderName.includes('/');
+        const displayName = isSubfolder ? folderName.split('/').pop() : folderName;
+
+        item.innerHTML = `
+            <div class="folder-label" onclick="toggleFolder(this)">
+                <span class="toggle">${isSubfolder ? '▶' : '▼'}</span>
+                <span class="name">${isSubfolder ? '📂 ' : '📁 '}${displayName}</span>
+                <span class="count">(${files ? files.length : 0})</span>
+                <div class="actions">
+                    <button onclick="event.stopPropagation(); addSubfolder('${folderName}')" title="Создать подпапку">📁+</button>
+                    <button onclick="event.stopPropagation(); deleteFolder('${folderName}')" title="Удалить папку">🗑️</button>
+                </div>
+            </div>
+            <div class="folder-children">
+                ${filesHtml}
+            </div>
+        `;
+        
+        if (!isSubfolder) {
+            item.classList.add('open');
+        }
+        
+        return item;
+    }
+
+    function toggleFolder(labelEl) {
+        const item = labelEl.closest('.folder-item');
+        if (item) {
+            item.classList.toggle('open');
+            const toggle = labelEl.querySelector('.toggle');
+            if (toggle) toggle.textContent = item.classList.contains('open') ? '▼' : '▶';
+        }
+    }
+
+    function createFolder() {
+        showModal('📁 Новая папка', 'Введите название папки:', function(name) {
+            if (!name || name.trim() === '') {
+                showToast('❌ Название не может быть пустым');
+                return;
+            }
+            const folders = getFolders();
+            const trimmed = name.trim();
+            if (folders[trimmed]) {
+                showToast('❌ Папка "' + trimmed + '" уже существует');
+                return;
+            }
+            folders[trimmed] = [];
+            saveFolders(folders);
+            modalClose();
+            showToast('✅ Папка "' + trimmed + '" создана');
+        }, '', 'text');
+    }
+
+    function addSubfolder(parentName) {
+        const folders = getFolders();
+        if (!folders[parentName] && !Object.keys(folders).some(k => k === parentName || k.startsWith(parentName + '/'))) {
+            folders[parentName] = [];
+        }
+        
+        showModal('📁 Новая подпапка', `Введите название подпапки в "${parentName}":`, function(name) {
+            if (!name || name.trim() === '') {
+                showToast('❌ Название не может быть пустым');
+                return;
+            }
+            const trimmed = name.trim();
+            const subfolderKey = parentName + '/' + trimmed;
+            const folders = getFolders();
+            if (folders[subfolderKey]) {
+                showToast('❌ Подпапка уже существует');
+                return;
+            }
+            folders[subfolderKey] = [];
+            saveFolders(folders);
+            modalClose();
+            showToast('✅ Подпапка "' + trimmed + '" создана');
+        }, '', 'text');
+    }
+
+    function deleteFolder(folderName) {
+        if (!confirm(`🗑️ Удалить папку "${folderName}" и все файлы?`)) return;
+        const folders = getFolders();
+        const keysToDelete = Object.keys(folders).filter(key => key === folderName || key.startsWith(folderName + '/'));
+        keysToDelete.forEach(key => delete folders[key]);
+        saveFolders(folders);
+        showToast('🗑️ Папка удалена');
+    }
+
+    function uploadFiles(event) {
+        const files = event.target.files;
+        if (files.length === 0) return;
+
+        const folders = getFolders();
+        const folderNames = Object.keys(folders);
+
+        if (folderNames.length === 0) {
+            alert('❌ Сначала создайте папку!');
+            event.target.value = '';
+            return;
+        }
+
+        pendingFiles = Array.from(files);
+        pendingFileInput = event.target;
+        
+        let selectHtml = `
+            <div style="text-align:left; margin-bottom:12px;">
+                <label style="font-weight:600; display:block; margin-bottom:4px;">Выберите папку:</label>
+                <select id="folderSelect" style="width:100%; padding:8px; border:1px solid #e0e0e0; font-size:14px; border-radius:0;">
+        `;
+        
+        const mainFolders = folderNames.filter(f => !f.includes('/')).sort();
+        const subFolders = folderNames.filter(f => f.includes('/')).sort();
+        const sortedFolders = [...mainFolders, ...subFolders];
+        
+        for (const name of sortedFolders) {
+            const displayName = name.includes('/') ? '  ├─ ' + name.split('/').pop() : name;
+            selectHtml += `<option value="${name}">${displayName}</option>`;
+        }
+        
+        selectHtml += `
+                </select>
+            </div>
+            <div style="text-align:left; font-size:13px; color:#666; margin-bottom:8px;">
+                📎 Выбрано файлов: ${files.length}
+            </div>
+        `;
+
+        showModal('📎 Загрузка файлов', 'Выберите папку для загрузки файлов:', function(selectedValue) {
+            const select = document.getElementById('folderSelect');
+            const folderName = select ? select.value : selectedValue;
+            
+            if (!folderName || folderName.trim() === '') {
+                modalClose();
+                resetPendingFiles();
+                return;
+            }
+            
+            const name = folderName.trim();
+            const folders = getFolders();
+            
+            const folderExists = folders[name] !== undefined;
+            if (!folderExists) {
+                alert('❌ Папка "' + name + '" не найдена. Доступны: ' + Object.keys(folders).join(', '));
+                modalClose();
+                resetPendingFiles();
+                return;
+            }
+
+            let loaded = 0;
+            const supportedTypes = ['image/', 'application/pdf', 'application/msword', 
+                                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                    'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+
+            for (const file of pendingFiles) {
+                const isSupported = supportedTypes.some(type => file.type.startsWith(type) || file.type === type);
+                if (!isSupported) {
+                    alert('⚠️ Файл "' + file.name + '" не поддерживается. Разрешены: изображения, PDF, DOC, DOCX, XLS, XLSX.');
+                    loaded++;
+                    if (loaded === pendingFiles.length) {
+                        modalClose();
+                        resetPendingFiles();
+                        showToast('✅ Загружено ' + loaded + ' файлов (с ошибками)');
+                    }
+                    continue;
+                }
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (!folders[name]) {
+                        folders[name] = [];
+                    }
+                    let icon = '📄';
+                    if (file.type.startsWith('image/')) icon = '🖼️';
+                    else if (file.type === 'application/pdf') icon = '📕';
+                    else if (file.type.includes('word') || file.type.includes('document')) icon = '📘';
+                    else if (file.type.includes('sheet') || file.type.includes('excel')) icon = '📊';
+                    
+                    folders[name].push({ 
+                        name: file.name, 
+                        data: e.target.result,
+                        type: file.type,
+                        icon: icon
+                    });
+                    loaded++;
+                    if (loaded === pendingFiles.length) {
+                        saveFolders(folders);
+                        modalClose();
+                        resetPendingFiles();
+                        showToast('✅ Загружено ' + loaded + ' файлов в папку "' + name + '"');
+                    }
+                };
+                reader.onerror = function() {
+                    loaded++;
+                    if (loaded === pendingFiles.length) {
+                        modalClose();
+                        resetPendingFiles();
+                        showToast('⚠️ Ошибка при загрузке некоторых файлов');
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }, selectHtml, 'text');
+    }
+
+    function resetPendingFiles() {
+        pendingFiles = [];
+        if (pendingFileInput) {
+            pendingFileInput.value = '';
+            pendingFileInput = null;
+        }
+    }
+
+    function openFile(folderName, index) {
+        const folders = getFolders();
+        const file = folders[folderName]?.[index];
+        if (!file) return;
+
+        if (file.data && file.data.startsWith('http')) {
+            window.open(file.data, '_blank');
+            return;
+        }
+
+        if (file.data && file.data.startsWith('data:')) {
+            window.open(file.data, '_blank');
+            return;
+        }
+
+        downloadFile(folderName, index);
+    }
+
+    function downloadFile(folderName, index) {
+        const folders = getFolders();
+        const file = folders[folderName]?.[index];
+        if (!file) {
+            showToast('❌ Файл не найден');
+            return;
+        }
+
+        try {
+            const link = document.createElement('a');
+            
+            if (file.data && file.data.startsWith('data:')) {
+                link.href = file.data;
+            } else {
+                const byteString = atob(file.data.split(',')[1] || file.data);
+                const mimeType = file.type || 'application/octet-stream';
+                const ab = new ArrayBuffer(byteString.length);
+                const ia = new Uint8Array(ab);
+                for (let i = 0; i < byteString.length; i++) {
+                    ia[i] = byteString.charCodeAt(i);
+                }
+                const blob = new Blob([ab], { type: mimeType });
+                link.href = URL.createObjectURL(blob);
+            }
+            
+            link.download = file.name;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            if (!file.data || !file.data.startsWith('data:')) {
+                URL.revokeObjectURL(link.href);
+            }
+            
+            showToast('⬇️ Скачивание файла "' + file.name + '"');
+        } catch (error) {
+            console.error('Ошибка при скачивании:', error);
+            showToast('❌ Ошибка при скачивании файла');
+        }
+    }
+
+    function searchFiles() {
+        const query = document.getElementById('fileSearchInput').value.toLowerCase().trim();
+        const stats = document.getElementById('searchStats');
+        const folders = getFolders();
+        const container = document.getElementById('folderTree');
+
+        if (!query) {
+            loadFolders(folders);
+            stats.textContent = '';
+            return;
+        }
+
+        const results = {};
+        let totalFiles = 0;
+
+        for (const [folderName, files] of Object.entries(folders)) {
+            const matched = files.filter(f => f.name.toLowerCase().includes(query));
+            if (matched.length > 0) {
+                results[folderName] = matched;
+                totalFiles += matched.length;
+            }
+        }
+
+        if (Object.keys(results).length === 0) {
+            container.innerHTML = '<p style="color:#999; padding:20px 0; text-align:center;">🔍 Ничего не найдено по запросу "' + query + '"</p>';
+            stats.textContent = '🔍 Найдено: 0 файлов';
+            stats.style.color = '#dc3545';
+            return;
+        }
+
+        loadFolders(results);
+        stats.textContent = '🔍 Найдено: ' + totalFiles + ' файлов в ' + Object.keys(results).length + ' папках';
+        stats.style.color = '#1a1a2e';
+    }
+
+    function clearFileSearch() {
+        document.getElementById('fileSearchInput').value = '';
+        document.getElementById('searchStats').textContent = '';
+        loadFolders(getFolders());
+    }
+
+    function deleteFile(folderName, index) {
+        if (!confirm('🗑️ Удалить файл?')) return;
+        const folders = getFolders();
+        if (folders[folderName]) {
+            folders[folderName].splice(index, 1);
+            saveFolders(folders);
+            showToast('🗑️ Файл удалён');
+        }
+    }
+
+    function clearAllFiles() {
+        if (!confirm('🗑️ Удалить все папки и файлы?')) return;
+        localStorage.removeItem('sales_folders');
+        loadFolders({});
+        showToast('Все файлы удалены');
+    }
+
+    // ============================
+    // ШПАРГАЛКИ
+    // ============================
+    function getCheatSheets() {
+        const data = localStorage.getItem('cheat_sheets');
+        if (data) {
+            try { return JSON.parse(data); } catch(e) { return []; }
+        }
+        return [
+            { text: '📌 Всегда начинайте диалог с приветствия', files: [] },
+            { text: '📄 Ссылка на каталог — внизу страницы', files: [] },
+            { text: '📅 Поступление новой коллекции — 15 число', files: [] }
+        ];
+    }
+
+    function saveCheatSheets(sheets) {
+        localStorage.setItem('cheat_sheets', JSON.stringify(sheets));
+        renderCheatSheets();
+    }
+
+    function renderCheatSheets(filter = '') {
+        const container = document.getElementById('cheatContent');
+        const sheets = getCheatSheets();
+        
+        let filtered = sheets;
+        if (filter.trim()) {
+            const query = filter.toLowerCase().trim();
+            filtered = sheets.filter(s => s.text.toLowerCase().includes(query));
+        }
+
+        container.innerHTML = '';
+
+        if (filtered.length === 0) {
+            container.innerHTML = '<div class="tip-empty">📭 Нет шпаргалок. Добавьте новую!</div>';
+        }
+
+        filtered.forEach((sheet, index) => {
+            const item = document.createElement('div');
+            item.className = 'tip-item';
+            
+            let filesHtml = '';
+            if (sheet.files && sheet.files.length > 0) {
+                filesHtml = sheet.files.map((f, fi) => `
+                    <div class="tip-file">
+                        📎 <a href="${f.url}" target="_blank">${f.name}</a>
+                        ${isEditorMode ? `<button class="remove-file" onclick="removeFileFromCheat(${index}, ${fi})">✕</button>` : ''}
+                    </div>
+                `).join('');
+            }
+
+            item.innerHTML = `
+                <div class="tip-text editable-text" contenteditable="${isEditorMode}">${sheet.text}</div>
+                <div class="tip-actions">
+                    ${isEditorMode ? `
+                        <button onclick="editCheatSheet(${index})">✏️</button>
+                        <button onclick="attachFileToCheat(${index})">📎</button>
+                        <button class="delete-tip" onclick="deleteCheatSheet(${index})">🗑️</button>
+                    ` : ''}
+                </div>
+                ${filesHtml}
+            `;
+            container.appendChild(item);
+        });
+
+        const addBtn = document.createElement('button');
+        addBtn.className = 'add-tip-btn';
+        addBtn.textContent = '+ Добавить шпаргалку';
+        addBtn.onclick = addCheatSheet;
+        container.appendChild(addBtn);
+    }
+
+    function addCheatSheet() {
+        showModal('📚 Новая шпаргалка', 'Введите текст шпаргалки:', function(text) {
+            if (!text || text.trim() === '') {
+                showToast('❌ Текст не может быть пустым');
+                return;
+            }
+            const sheets = getCheatSheets();
+            sheets.push({ text: text.trim(), files: [] });
+            saveCheatSheets(sheets);
+            modalClose();
+            showToast('✅ Шпаргалка добавлена');
+        }, '<textarea id="modalInput" placeholder="Введите текст шпаргалки..." rows="3"></textarea>', 'text');
+    }
+
+    function editCheatSheet(index) {
+        const sheets = getCheatSheets();
+        const sheet = sheets[index];
+        if (!sheet) return;
+        
+        showModal('✏️ Редактировать шпаргалку', 'Измените текст:', function(text) {
+            if (!text || text.trim() === '') {
+                showToast('❌ Текст не может быть пустым');
+                return;
+            }
+            sheets[index].text = text.trim();
+            saveCheatSheets(sheets);
+            modalClose();
+            showToast('✅ Шпаргалка обновлена');
+        }, `<textarea id="modalInput" placeholder="Введите текст шпаргалки..." rows="3">${sheet.text}</textarea>`, 'text');
+    }
+
+    function deleteCheatSheet(index) {
+        if (!confirm('Удалить шпаргалку?')) return;
+        const sheets = getCheatSheets();
+        sheets.splice(index, 1);
+        saveCheatSheets(sheets);
+        showToast('🗑️ Шпаргалка удалена');
+    }
+
+    function attachFileToCheat(index) {
+        const sheets = getCheatSheets();
+        const sheet = sheets[index];
+        if (!sheet) return;
+
+        showModal('📎 Прикрепить файл', 'Введите название файла и ссылку:', function(data) {
+            if (!data || data.trim() === '') {
+                showToast('❌ Данные не могут быть пустыми');
+                return;
+            }
+            
+            let name, url;
+            if (data.includes('|')) {
+                const parts = data.split('|');
+                name = parts[0].trim();
+                url = parts[1].trim();
+            } else {
+                name = 'Файл ' + (sheet.files.length + 1);
+                url = data.trim();
+            }
+            
+            if (!url) {
+                showToast('❌ Ссылка не может быть пустой');
+                return;
+            }
+            
+            if (!sheet.files) sheet.files = [];
+            sheet.files.push({ name, url });
+            saveCheatSheets(sheets);
+            modalClose();
+            showToast('✅ Файл прикреплён');
+        }, `
+            <input type="text" id="modalInput" placeholder="Название|URL (например: Каталог|https://example.com/catalog.pdf)" style="margin-bottom:8px;">
+            <div style="font-size:12px;color:#999;text-align:left;">💡 Формат: Название|Ссылка</div>
+        `, 'text');
+    }
+
+    function removeFileFromCheat(index, fileIndex) {
+        if (!confirm('Удалить прикреплённый файл?')) return;
+        const sheets = getCheatSheets();
+        if (sheets[index] && sheets[index].files) {
+            sheets[index].files.splice(fileIndex, 1);
+            saveCheatSheets(sheets);
+            showToast('🗑️ Файл удалён');
+        }
+    }
+
+    function searchCheatSheets() {
+        const query = document.getElementById('cheatSearch').value;
+        renderCheatSheets(query);
+    }
+
+    function toggleCheatSheet() {
+        const panel = document.getElementById('cheatSheet');
+        const toggle = document.getElementById('cheatToggle');
+        cheatOpen = !cheatOpen;
+        panel.classList.toggle('open');
+        toggle.classList.toggle('active');
+        if (cheatOpen) {
+            renderCheatSheets();
+        }
+    }
+
+    // ============================
+    // ССЫЛКИ НА ДОКУМЕНТЫ
+    // ============================
+    function getDocLinks() {
+        const data = localStorage.getItem('sales_links');
+        if (data) {
+            try { return JSON.parse(data); } catch(e) { return []; }
+        }
+        return [
+            { name: 'Каталог мебели', url: '#', type: 'pdf' },
+            { name: 'Сроки поступления', url: '#', type: 'docx' }
+        ];
+    }
+
+    function saveDocLinks(links) {
+        localStorage.setItem('sales_links', JSON.stringify(links));
+        loadDocLinks(links);
+    }
+
+    function loadDocLinks(links) {
+        const container = document.getElementById('docLinks');
+        container.innerHTML = '';
+        
+        links.forEach(link => {
+            const a = document.createElement('a');
+            a.href = link.url;
+            a.target = '_blank';
+            a.innerHTML = `
+                📄 <span class="doc-label">${link.name}</span> 📎 ${link.type.toUpperCase()}
+                ${isEditorMode ? ` <span style="color:#dc3545;cursor:pointer;" onclick="event.preventDefault(); removeDocLink('${link.name}')">✕</span>` : ''}
+            `;
+            a.onclick = function(e) {
+                e.preventDefault();
+                if (link.url === '#') {
+                    showModal('📄 Ссылка на документ', 'Введите URL документа:', function(url) {
+                        if (url && url.trim() !== '') {
+                            link.url = url.trim();
+                            const links = getDocLinks();
+                            const index = links.findIndex(l => l.name === link.name);
+                            if (index !== -1) {
+                                links[index].url = url.trim();
+                                saveDocLinks(links);
+                                modalClose();
+                                showToast('✅ Ссылка обновлена');
+                            }
+                        }
+                    });
+                } else {
+                    window.open(link.url, '_blank');
+                }
+            };
+            container.appendChild(a);
+        });
+        
+        const addLink = document.createElement('a');
+        addLink.textContent = '➕ Добавить ссылку';
+        addLink.href = '#';
+        addLink.onclick = function(e) {
+            e.preventDefault();
+            showModal('➕ Новая ссылка', 'Введите название документа:', function(name) {
+                if (!name || name.trim() === '') {
+                    showToast('❌ Название не может быть пустым');
+                    return;
+                }
+                const links = getDocLinks();
+                links.push({ name: name.trim(), url: '#', type: 'pdf' });
+                saveDocLinks(links);
+                modalClose();
+                showToast('✅ Ссылка добавлена');
+            });
+        };
+        container.appendChild(addLink);
+    }
+
+    function removeDocLink(name) {
+        if (!confirm(`Удалить ссылку "${name}"?`)) return;
+        const links = getDocLinks();
+        const index = links.findIndex(l => l.name === name);
+        if (index !== -1) {
+            links.splice(index, 1);
+            saveDocLinks(links);
+            showToast('🗑️ Ссылка удалена');
+        }
+    }
+
+    function openCatalog() {
+        const links = getDocLinks();
+        const catalog = links.find(l => l.name.includes('Каталог'));
+        if (catalog && catalog.url !== '#') {
+            window.open(catalog.url, '_blank');
+        } else {
+            showModal('📄 Каталог мебели', 'Введите ссылку на PDF каталог:', function(url) {
+                if (url && url.trim() !== '') {
+                    const links = getDocLinks();
+                    const index = links.findIndex(l => l.name.includes('Каталог'));
+                    if (index !== -1) {
+                        links[index].url = url.trim();
+                        saveDocLinks(links);
+                        modalClose();
+                        window.open(url.trim(), '_blank');
+                        showToast('✅ Ссылка на каталог обновлена');
+                    }
+                }
+            });
+        }
+    }
+
+    function openDoc(type) {
+        const links = getDocLinks();
+        const doc = links.find(l => l.name.includes(type === 'schedule' ? 'Сроки' : ''));
+        if (doc && doc.url !== '#') {
+            window.open(doc.url, '_blank');
+        } else {
+            showModal('📄 Документ', 'Введите ссылку на документ:', function(url) {
+                if (url && url.trim() !== '') {
+                    const links = getDocLinks();
+                    const index = links.findIndex(l => l.name.includes(type === 'schedule' ? 'Сроки' : ''));
+                    if (index !== -1) {
+                        links[index].url = url.trim();
+                        saveDocLinks(links);
+                        modalClose();
+                        window.open(url.trim(), '_blank');
+                        showToast('✅ Ссылка обновлена');
+                    }
+                }
+            });
+        }
+    }
+
+    function addDocLink() {
+        showModal('➕ Новая ссылка', 'Введите название документа:', function(name) {
+            if (!name || name.trim() === '') {
+                showToast('❌ Название не может быть пустым');
+                return;
+            }
+            const links = getDocLinks();
+            links.push({ name: name.trim(), url: '#', type: 'pdf' });
+            saveDocLinks(links);
+            modalClose();
+            showToast('✅ Ссылка добавлена');
+        });
+    }
+
+    // ============================
+    // СТИКЕРЫ
+    // ============================
+    let stickerCounter = 0;
+
+    function createSticker() {
+        const sticker = document.createElement('div');
+        sticker.className = 'floating-sticker';
+        sticker.dataset.stickerId = 'sticker-' + (++stickerCounter);
+        
+        Object.assign(sticker.style, {
+            position: 'fixed',
+            minWidth: '200px',
+            maxWidth: '280px',
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(4px)',
+            border: '2px solid #1a1a2e',
+            padding: '10px 14px',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+            zIndex: '999',
+            cursor: 'move',
+            borderRadius: '0',
+            left: (Math.random() * (window.innerWidth - 320) + 40) + 'px',
+            top: (Math.random() * (window.innerHeight - 280) + 60) + 'px'
+        });
+
+        sticker.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;border-bottom:1px solid #e0e0e0;padding-bottom:3px;">
+                <span style="font-size:11px;font-weight:600;color:#1a1a2e;">📌 Стикер</span>
+                <button onclick="closeSticker(this)" style="background:none;border:none;cursor:pointer;font-size:14px;color:#dc3545;">✕</button>
+            </div>
+            <textarea style="width:100%;min-height:50px;border:1px solid #e0e0e0;padding:4px 8px;font-size:12px;font-family:inherit;resize:vertical;border-radius:0;outline:none;" placeholder="Напишите заметку..."></textarea>
+        `;
+
+        document.body.appendChild(sticker);
+        
+        let isDragging = false;
+        let offsetX, offsetY;
+        
+        sticker.addEventListener('mousedown', function(e) {
+            if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON') return;
+            isDragging = true;
+            const rect = sticker.getBoundingClientRect();
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
+            sticker.style.cursor = 'grabbing';
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (!isDragging) return;
+            const x = e.clientX - offsetX;
+            const y = e.clientY - offsetY;
+            const maxX = window.innerWidth - sticker.offsetWidth - 10;
+            const maxY = window.innerHeight - sticker.offsetHeight - 10;
+            sticker.style.left = Math.max(10, Math.min(maxX, x)) + 'px';
+            sticker.style.top = Math.max(10, Math.min(maxY, y)) + 'px';
+        });
+
+        document.addEventListener('mouseup', function() {
+            isDragging = false;
+            sticker.style.cursor = 'move';
+        });
+
+        showToast('📌 Стикер создан');
+    }
+
+    function closeSticker(btn) {
+        const sticker = btn.closest('.floating-sticker');
+        if (sticker && confirm('Удалить стикер?')) {
+            sticker.remove();
+            showToast('🗑️ Стикер удалён');
+        }
+    }
+
+    // ============================
+    // TOAST
+    // ============================
+    function showToast(message) {
+        const existing = document.querySelector('.toast-notification');
+        if (existing) existing.remove();
+
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => toast.remove(), 300);
+        }, 2500);
+    }
+
+    // ============================
+    // ИНИЦИАЛИЗАЦИЯ
+    // ============================
+    document.addEventListener('DOMContentLoaded', function() {
+        loadSavedContent();
+        
+        document.querySelectorAll('.objection-item').forEach((item, index) => {
+            if (index !== 0) item.classList.remove('open');
+        });
+        
+        console.log('✅ Деловой редактор с фоном загружен');
+        console.log('🔒 Пароль: Qsweet2002');
+        console.log('💡 Нажмите 🔍 в правом нижнем углу для шпаргалок');
+        console.log('📁 Создавайте папки и подпапки с файлами');
+        console.log('⬇️ Кликните на имя файла или кнопку "Скачать" для загрузки');
+        console.log('📝 В режиме редактирования можно менять название шапки и навигации');
+    });
+</script>
+
+</body>
+</html>
