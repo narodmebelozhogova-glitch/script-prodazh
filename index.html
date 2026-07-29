@@ -1343,129 +1343,7 @@
         </div>
         <div class="actions">
             <button class="primary" onclick="toggleEditorMode()">✏️ Редактировать</button>
-            <button onclick="// ===== ОБЛАЧНОЕ СОХРАНЕНИЕ =====
-
-// Сохранение в облако (GitHub)
-async function saveToCloud() {
-    try {
-        const data = getCurrentData();
-        const dataToSave = {
-            content: data.content || {},
-            folders: data.folders || {},
-            cheatSheets: data.cheatSheets || [],
-            links: data.links || [],
-            brandTitle: data.brandTitle || 'Алгоритм продаж'
-        };
-
-        const contentEncoded = btoa(unescape(encodeURIComponent(JSON.stringify(dataToSave, null, 2))));
-        const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`;
-        
-        let sha = '';
-        try {
-            const fileCheck = await fetch(url, {
-                headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
-            });
-            if (fileCheck.ok) {
-                const fileData = await fileCheck.json();
-                sha = fileData.sha;
-            }
-        } catch (e) {}
-
-        const response = await fetch(url, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `token ${GITHUB_TOKEN}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                message: `Обновление данных (${new Date().toLocaleString()})`,
-                content: contentEncoded,
-                sha: sha
-            })
-        });
-
-        if (response.ok) {
-            showToast('☁️ Данные сохранены на GitHub');
-            return true;
-        } else {
-            showToast('❌ Ошибка сохранения на GitHub');
-            return false;
-        }
-    } catch (error) {
-        console.log('Ошибка сохранения:', error);
-        showToast('❌ Ошибка соединения');
-        return false;
-    }
-}
-
-// Загрузка из облака (GitHub)
-async function loadFromCloud() {
-    try {
-        const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`;
-        const response = await fetch(url, {
-            headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
-        });
-
-        if (!response.ok) {
-            console.log('☁️ Файл данных не найден, создаётся при сохранении');
-            return;
-        }
-
-        const data = await response.json();
-        const content = JSON.parse(atob(data.content));
-        
-        if (content) {
-            if (content.content) localStorage.setItem('editor_content', JSON.stringify(content.content));
-            if (content.folders) localStorage.setItem('sales_folders', JSON.stringify(content.folders));
-            if (content.cheatSheets) localStorage.setItem('cheat_sheets', JSON.stringify(content.cheatSheets));
-            if (content.links) localStorage.setItem('sales_links', JSON.stringify(content.links));
-            if (content.brandTitle) localStorage.setItem('brand_title', content.brandTitle);
-
-            loadSavedContent();
-            renderCheatSheets();
-            loadFolders(content.folders || {});
-            loadDocLinks(content.links || []);
-            if (content.brandTitle) {
-                const titleEl = document.getElementById('brandTitle');
-                if (titleEl) titleEl.innerHTML = content.brandTitle;
-            }
-
-            showToast('☁️ Данные загружены с GitHub');
-        }
-    } catch (error) {
-        console.log('Ошибка загрузки:', error);
-    }
-}
-
-// ПЕРЕОПРЕДЕЛЯЕМ saveAllChanges
-const originalSave = window.saveAllChanges || function() {
-    const data = getCurrentData();
-    localStorage.setItem('editor_content', JSON.stringify(data.content));
-    localStorage.setItem('sales_folders', JSON.stringify(data.folders));
-    localStorage.setItem('cheat_sheets', JSON.stringify(data.cheatSheets));
-    localStorage.setItem('sales_links', JSON.stringify(data.links));
-    localStorage.setItem('brand_title', data.brandTitle);
-    showToast('✅ Изменения сохранены локально');
-};
-
-window.saveAllChanges = function() {
-    // Сохраняем локально
-    const data = getCurrentData();
-    localStorage.setItem('editor_content', JSON.stringify(data.content));
-    localStorage.setItem('sales_folders', JSON.stringify(data.folders));
-    localStorage.setItem('cheat_sheets', JSON.stringify(data.cheatSheets));
-    localStorage.setItem('sales_links', JSON.stringify(data.links));
-    localStorage.setItem('brand_title', data.brandTitle);
-    showToast('✅ Изменения сохранены локально');
-    
-    // Сохраняем в облако
-    saveToCloud();
-};
-
-// Автоматическая загрузка при открытии страницы
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(loadFromCloud, 500);
-});()">💾 Сохранить</button>
+            <button onclick="saveAllChanges()">💾 Сохранить</button>
             <button onclick="resetAllData()" class="danger">🔄 Сбросить</button>
             <button onclick="createSticker()" style="background:#ffd700;color:#1a1a2e;border-color:#ffd700;">📌 Стикер</button>
             <span class="status" id="statusIndicator">📖 Просмотр</span>
@@ -1826,6 +1704,13 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <script>
+    // ===== НАСТРОЙКИ ОБЛАЧНОГО СОХРАНЕНИЯ (GitHub) =====
+    const GITHUB_TOKEN = 'ghp_nu88tAapK1lblvHCkv0d5djC14rm5C1uFCu3';
+    const REPO_OWNER = 'narodmebelozhogova-glitch';
+    const REPO_NAME = 'script-prodazh';
+    const FILE_PATH = 'data.json';
+
+    // ===== ОСНОВНЫЕ ПЕРЕМЕННЫЕ =====
     const ADMIN_PASSWORD = 'Qsweet2002';
     let isEditorMode = false;
     let modalCallback = null;
@@ -1833,9 +1718,103 @@ document.addEventListener('DOMContentLoaded', function() {
     let pendingFiles = [];
     let pendingFileInput = null;
 
-    // ============================
+    // ===== ФУНКЦИИ ОБЛАЧНОГО СОХРАНЕНИЯ =====
+
+    // Сохранение в облако (GitHub)
+    async function saveToCloud() {
+        try {
+            const data = getCurrentData();
+            const dataToSave = {
+                content: data.content || {},
+                folders: data.folders || {},
+                cheatSheets: data.cheatSheets || [],
+                links: data.links || [],
+                brandTitle: data.brandTitle || 'Алгоритм продаж'
+            };
+
+            const contentEncoded = btoa(unescape(encodeURIComponent(JSON.stringify(dataToSave, null, 2))));
+            const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`;
+            
+            let sha = '';
+            try {
+                const fileCheck = await fetch(url, {
+                    headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+                });
+                if (fileCheck.ok) {
+                    const fileData = await fileCheck.json();
+                    sha = fileData.sha;
+                }
+            } catch (e) {}
+
+            const response = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${GITHUB_TOKEN}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: `Обновление данных (${new Date().toLocaleString()})`,
+                    content: contentEncoded,
+                    sha: sha
+                })
+            });
+
+            if (response.ok) {
+                showToast('☁️ Данные сохранены на GitHub');
+                return true;
+            } else {
+                showToast('❌ Ошибка сохранения на GitHub');
+                return false;
+            }
+        } catch (error) {
+            console.log('Ошибка сохранения:', error);
+            showToast('❌ Ошибка соединения');
+            return false;
+        }
+    }
+
+    // Загрузка из облака (GitHub)
+    async function loadFromCloud() {
+        try {
+            const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`;
+            const response = await fetch(url, {
+                headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+            });
+
+            if (!response.ok) {
+                console.log('☁️ Файл данных не найден, создаётся при сохранении');
+                return;
+            }
+
+            const data = await response.json();
+            const content = JSON.parse(atob(data.content));
+            
+            if (content) {
+                if (content.content) localStorage.setItem('editor_content', JSON.stringify(content.content));
+                if (content.folders) localStorage.setItem('sales_folders', JSON.stringify(content.folders));
+                if (content.cheatSheets) localStorage.setItem('cheat_sheets', JSON.stringify(content.cheatSheets));
+                if (content.links) localStorage.setItem('sales_links', JSON.stringify(content.links));
+                if (content.brandTitle) localStorage.setItem('brand_title', content.brandTitle);
+
+                loadSavedContent();
+                renderCheatSheets();
+                loadFolders(content.folders || {});
+                loadDocLinks(content.links || []);
+                if (content.brandTitle) {
+                    const titleEl = document.getElementById('brandTitle');
+                    if (titleEl) titleEl.innerHTML = content.brandTitle;
+                }
+
+                showToast('☁️ Данные загружены с GitHub');
+            }
+        } catch (error) {
+            console.log('Ошибка загрузки:', error);
+        }
+    }
+
+    // ===== ОСТАЛЬНЫЕ ФУНКЦИИ =====
+
     // РЕЖИМ РЕДАКТИРОВАНИЯ
-    // ============================
     function toggleEditorMode() {
         if (isEditorMode) {
             disableEditorMode();
@@ -1862,7 +1841,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('statusIndicator').textContent = '✏️ Редактирование';
         document.getElementById('statusIndicator').classList.add('active');
         
-        // Редактируемые элементы
         document.querySelectorAll('.editable-text, .editable-nav, .editable-title').forEach(el => {
             el.contentEditable = 'true';
         });
@@ -1888,9 +1866,7 @@ document.addEventListener('DOMContentLoaded', function() {
         renderCheatSheets();
     }
 
-    // ============================
     // МОДАЛЬНОЕ ОКНО
-    // ============================
     function showModal(title, text, callback, extraHtml = '', inputType = 'text') {
         document.getElementById('modalTitle').textContent = title;
         document.getElementById('modalText').textContent = text;
@@ -1931,9 +1907,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target === this) modalClose();
     });
 
-    // ============================
     // СОХРАНЕНИЕ И ЗАГРУЗКА
-    // ============================
     function getElementPath(el) {
         let path = [];
         while (el && el !== document.body) {
@@ -1987,11 +1961,12 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem('sales_links', JSON.stringify(data.links));
         localStorage.setItem('brand_title', data.brandTitle);
         localStorage.setItem('nav_items', JSON.stringify(data.navItems));
-        showToast('✅ Все изменения сохранены');
+        showToast('✅ Изменения сохранены локально');
+        // Сохраняем в облако
+        saveToCloud();
     }
 
     function loadSavedContent() {
-        // Загружаем контент
         const saved = localStorage.getItem('editor_content');
         if (saved) {
             try {
@@ -2005,14 +1980,12 @@ document.addEventListener('DOMContentLoaded', function() {
             } catch(e) {}
         }
         
-        // Загружаем название бренда
         const brandTitle = localStorage.getItem('brand_title');
         if (brandTitle) {
             const titleEl = document.getElementById('brandTitle');
             if (titleEl) titleEl.innerHTML = brandTitle;
         }
         
-        // Загружаем навигацию
         const navData = localStorage.getItem('nav_items');
         if (navData) {
             try {
@@ -2027,7 +2000,6 @@ document.addEventListener('DOMContentLoaded', function() {
             } catch(e) {}
         }
         
-        // Загружаем шпаргалки
         const cheatData = localStorage.getItem('cheat_sheets');
         if (cheatData) {
             try {
@@ -2039,7 +2011,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         renderCheatSheets();
         
-        // Загружаем ссылки
         const links = localStorage.getItem('sales_links');
         if (links) {
             try {
@@ -2048,7 +2019,6 @@ document.addEventListener('DOMContentLoaded', function() {
             } catch(e) {}
         }
         
-        // Загружаем папки
         const folders = localStorage.getItem('sales_folders');
         if (folders) {
             try {
@@ -2064,9 +2034,7 @@ document.addEventListener('DOMContentLoaded', function() {
         location.reload();
     }
 
-    // ============================
     // УПРАВЛЕНИЕ РАЗДЕЛАМИ
-    // ============================
     let sectionCounter = document.querySelectorAll('.section').length;
 
     function addNewSection() {
@@ -2121,7 +2089,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const section = document.getElementById(sectionId);
         if (!section) return;
         
-        // Не даем удалить последний раздел
         const container = document.getElementById('sectionsContainer');
         if (container.querySelectorAll('.section').length <= 1) {
             showToast('❌ Нельзя удалить последний раздел');
@@ -2142,7 +2109,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const newId = sectionId + '-copy-' + Date.now();
         clone.id = newId;
         
-        // Обновляем обработчики кнопок
         const controls = clone.querySelector('.section-controls');
         if (controls) {
             const btns = controls.querySelectorAll('button');
@@ -2155,7 +2121,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
-        // Обновляем кнопку добавления блока
         const addBtn = clone.querySelector('.add-block-btn');
         if (addBtn) {
             const onclick = addBtn.getAttribute('onclick');
@@ -2175,7 +2140,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const title = section.querySelector('.section-title .editable-text');
             if (title) {
                 const currentText = title.innerHTML;
-                // Обновляем номер только если он есть в начале
                 const numberMatch = currentText.match(/^(\d+)\./);
                 if (numberMatch) {
                     const newText = currentText.replace(/^\d+\./, (index + 1) + '.');
@@ -2186,9 +2150,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ============================
     // УПРАВЛЕНИЕ БЛОКАМИ
-    // ============================
     function addBlock(sectionId) {
         const section = document.getElementById(sectionId);
         if (!section) return;
@@ -2255,9 +2217,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (item) item.classList.toggle('open');
     }
 
-    // ============================
     // ФАЙЛОВЫЙ МЕНЕДЖЕР
-    // ============================
     function getFolders() {
         const data = localStorage.getItem('sales_folders');
         if (data) {
@@ -2675,9 +2635,7 @@ document.addEventListener('DOMContentLoaded', function() {
         showToast('Все файлы удалены');
     }
 
-    // ============================
     // ШПАРГАЛКИ
-    // ============================
     function getCheatSheets() {
         const data = localStorage.getItem('cheat_sheets');
         if (data) {
@@ -2848,9 +2806,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // ============================
     // ССЫЛКИ НА ДОКУМЕНТЫ
-    // ============================
     function getDocLinks() {
         const data = localStorage.getItem('sales_links');
         if (data) {
@@ -2991,9 +2947,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ============================
     // СТИКЕРЫ
-    // ============================
     let stickerCounter = 0;
 
     function createSticker() {
@@ -3065,9 +3019,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // ============================
     // TOAST
-    // ============================
     function showToast(message) {
         const existing = document.querySelector('.toast-notification');
         if (existing) existing.remove();
@@ -3083,15 +3035,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 2500);
     }
 
-    // ============================
     // ИНИЦИАЛИЗАЦИЯ
-    // ============================
     document.addEventListener('DOMContentLoaded', function() {
+        // Загружаем сохранённые данные
         loadSavedContent();
         
+        // Закрываем все возражения кроме первого
         document.querySelectorAll('.objection-item').forEach((item, index) => {
             if (index !== 0) item.classList.remove('open');
         });
+        
+        // Загружаем данные из облака через 2 секунды
+        setTimeout(loadFromCloud, 2000);
         
         console.log('✅ Деловой редактор с фоном загружен');
         console.log('🔒 Пароль: Qsweet2002');
@@ -3099,6 +3054,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('📁 Создавайте папки и подпапки с файлами');
         console.log('⬇️ Кликните на имя файла или кнопку "Скачать" для загрузки');
         console.log('📝 В режиме редактирования можно менять название шапки и навигации');
+        console.log('☁️ Данные автоматически сохраняются на GitHub');
     });
 </script>
 
